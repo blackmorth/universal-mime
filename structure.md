@@ -1,61 +1,55 @@
 src/
-└── UniversalMime/
+├── Attributes/
+│   ├── HeaderRule.php
+│   ├── MessageContext.php
+│   ├── MimeContext.php
+│   ├── Protocol.php
+│   ├── RFC.php
+│   └── TransferEncoding.php
+├── Encoding/
+│   └── Transfer/
+│       ├── Base64StreamDecoder.php
+│       ├── GzipStreamDecoder.php
+│       ├── IdentityStreamDecoder.php
+│       ├── QPStreamDecoder.php
+│       ├── TransferDecoderInterface.php
+│       ├── TransferDecoderProvider.php
+│       └── TransferEncodingRegistry.php
 ├── Model/
-│   ├── Message.php
-│   ├── StartLine.php
-│   ├── Part.php
+│   ├── Body.php
+│   ├── BoundaryGenerator.php
+│   ├── ContentDisposition.php
+│   ├── ContentType.php
 │   ├── Header.php
 │   ├── HeaderBag.php
 │   ├── HeaderValue.php
+│   ├── Message.php
 │   ├── Parameter.php
-│   ├── ContentType.php
-│   ├── ContentDisposition.php
-│   ├── BoundaryGenerator.php
-│   └── Body.php
-│
-├── Wire/
-│   ├── RawHeaderLine.php
-│   ├── RawMessage.php
-│   └── HeaderCodec.php
-│
+│   ├── Part.php
+│   └── StartLine.php
 ├── Parser/
-│   ├── MessageStreamParser.php
-│   ├── StartLineParser.php
 │   ├── HeaderParser.php
+│   ├── HeaderParserInterface.php
+│   ├── MessageParserInterface.php
+│   ├── MessageStreamParser.php
 │   ├── MimeParser.php
-│   ├── Stream/
-│   │   ├── StreamInterface.php
-│   │   ├── ResourceStream.php
-│   │   ├── LengthLimitedStream.php
-│   │   ├── ChunkedStream.php
-│   │   └── MultipartStream.php
-│   └── TransferDecoders/
-│       ├── Base64StreamDecoder.php
-│       ├── QPStreamDecoder.php
-│       ├── BinaryStreamDecoder.php
-│       ├── GzipStreamDecoder.php
-│       └── SevenBitStreamDecoder.php
-│
-├── Encoding/
-│   ├── Transfer/
-│   │   ├── TransferEncoderInterface.php
-│   │   ├── SevenBitEncoder.php
-│   │   ├── EightBitEncoder.php
-│   │   ├── Base64Encoder.php
-│   │   ├── QPEncoder.php
-│   │   ├── BinaryEncoder.php
-│   │   └── TransferEncodingSelector.php
-│   ├── Rfc2047/
-│   │   ├── EncodedWordEncoder.php
-│   │   └── EncodedWordDecoder.php
-│   ├── Rfc2231/
-│   │   ├── ParameterEncoder.php
-│   │   └── ParameterDecoder.php
-│   └── Charset/
-│       └── CharsetConverter.php
-│
-└── Attributes/
-   ├── RFC.php
-   ├── TransferEncoding.php
-   ├── HeaderRule.php
-   └── MimeContext.php
+│   ├── ParserFactory.php
+│   ├── StartLineParser.php
+│   ├── StartLineParserInterface.php
+│   └── Stream/
+│       ├── ChunkedStream.php
+│       ├── LengthLimitedStream.php
+│       ├── MemoryStream.php
+│       ├── MultipartStream.php
+│       ├── ResourceStream.php
+│       └── StreamInterface.php
+├── Wire/
+│   ├── Header/
+│   │   ├── HeaderCodec.php
+│   │   ├── RawHeaderBlock.php
+│   │   └── RawHeaderLine.php
+│   ├── Message/
+│   │   └── RawMessage.php
+│   └── Line.php
+├── UniversalMime.php
+└── .gitkeep

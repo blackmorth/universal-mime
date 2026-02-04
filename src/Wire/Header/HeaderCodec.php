@@ -36,7 +36,7 @@ final class HeaderCodec
                 // On remplace CRLF + WSP par un espace
                 $buffer .= ' ' . ltrim($line->withoutCrlf());
             } else {
-                // Si on tombe sur une ligne non continuation => error logique
+                // Si on tombe sur une ligne non continuation => erreur logique
                 // mais on ne jette pas d'exception ici, le parser gère
                 $buffer .= ' ' . $line->withoutCrlf();
             }
