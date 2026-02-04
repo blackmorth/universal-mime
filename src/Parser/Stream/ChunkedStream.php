@@ -11,6 +11,11 @@ final class ChunkedStream implements StreamInterface
         return '';
     }
 
+    public function readLine(): ?string
+    {
+        return null;
+    }
+
     public function eof(): bool
     {
         return true;
@@ -28,5 +33,10 @@ final class ChunkedStream implements StreamInterface
     public function write(string $data): void
     {
         // TODO: Implement write() method.
+    }
+
+    public function unshift(string $data): void
+    {
+        // TODO: Implement unshift() method.
     }
 }

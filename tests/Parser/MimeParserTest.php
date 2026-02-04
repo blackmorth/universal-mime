@@ -10,6 +10,7 @@ use UniversalMime\Model\ContentType;
 use UniversalMime\Model\Parameter;
 use UniversalMime\UniversalMime;
 use UniversalMime\Wire\Line;
+use UniversalMime\Parser\Stream\ResourceStream;
 
 final class MimeParserTest extends TestCase
 {
@@ -65,5 +66,32 @@ final class MimeParserTest extends TestCase
         $body = $parts[0]->body->stream->read(999);
 
         $this->assertSame("HELLO", $body);
+    }
+
+    public function testParseMultipartFromResourceStream(): void
+    {
+        $raw =
+            "--abc" . Line::CRLF .
+            "X-A: 1" . Line::CRLF .
+            Line::CRLF .
+            "BODY1" . Line::CRLF .
+            "--abc--" . Line::CRLF;
+
+        $handle = fopen('php://temp', 'r+');
+        fwrite($handle, $raw);
+        rewind($handle);
+
+        $stream = new ResourceStream($handle);
+        $parser = UniversalMime::defaultParser();
+
+        $ctype = new ContentType('multipart', 'mixed', null, [
+            new Parameter('boundary', 'abc')
+        ]);
+
+        $parts = $parser->parse($ctype, $stream);
+
+        $this->assertCount(1, $parts);
+        $this->assertSame("1", $parts[0]->headers->get("X-A")->value);
+        $this->assertSame("BODY1" . Line::CRLF, $parts[0]->body->stream->read(999));
     }
 }
