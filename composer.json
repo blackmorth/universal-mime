@@ -1,0 +1,34 @@
+{
+  "name": "universalmime/universalmime",
+  "description": "Universal MIME encoder/decoder — RFC-complete, SIP/HTTP-first (PHP 8.2+)",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": "^8.2",
+    "ext-zlib": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^11.0",
+    "phpstan/phpstan": "^1.11",
+    "ext-mbstring": "*",
+    "rector/rector": "^1.2",
+    "friendsofphp/php-cs-fixer": "^3.89"
+  },
+  "autoload": {
+    "psr-4": {
+      "UniversalMime\\": "src/"
+    },
+    "exclude-from-classmap": []
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "UniversalMime\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit -c phpunit.xml.dist",
+    "stan": "phpstan analyse src --level=6",
+    "rector": "rector process",
+    "phpcs": "php-cs-fixer fix"
+  }
+}

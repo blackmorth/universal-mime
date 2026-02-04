@@ -1,0 +1,6 @@
+# phpstan.neon.dist
+parameters:
+  paths:
+    - src
+    - tests
+  level: max

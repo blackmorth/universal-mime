@@ -1,0 +1,18 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: universal-mime-php
+    volumes:
+      - ./:/app
+    working_dir: /app
+    tty: true
+    environment:
+      XDEBUG_MODE: debug,develop
+      XDEBUG_CLIENT_HOST: host.docker.internal
+      XDEBUG_CLIENT_PORT: 9003
+      XDEBUG_START_WITH_REQUEST: yes
+      DISCOVERY_CACHE: "0"        # IMPORTANT: rescan automatique en dev
+    ports:
+      - "9003:9003" # Xdebug
