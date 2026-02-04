@@ -93,5 +93,6 @@ final class MimeParserTest extends TestCase
         $this->assertCount(1, $parts);
         $this->assertSame("1", $parts[0]->headers->get("X-A")->value);
         $this->assertSame("BODY1" . Line::CRLF, $parts[0]->body->stream->read(999));
+        $stream->close();
     }
 }

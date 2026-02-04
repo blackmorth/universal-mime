@@ -6,7 +6,7 @@ namespace UniversalMime\Parser\Stream;
 
 final class LengthLimitedStream implements StreamInterface
 {
-    public function read(int $length): string
+    public function read(int $length): ?string
     {
         return '';
     }

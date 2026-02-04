@@ -26,9 +26,19 @@ final class ResourceStream implements StreamInterface
                 return $line;
             }
 
-            $line = $this->pushback;
+            $buffer = $this->pushback;
             $this->pushback = '';
-            return $line;
+
+            if (feof($this->handle)) {
+                return $buffer;
+            }
+
+            $tail = fgets($this->handle);
+            if ($tail === false) {
+                return $buffer;
+            }
+
+            return $buffer . $tail;
         }
 
         if (feof($this->handle)) {
@@ -42,7 +52,22 @@ final class ResourceStream implements StreamInterface
         if ($this->pushback !== '') {
             $chunk = substr($this->pushback, 0, $length);
             $this->pushback = substr($this->pushback, strlen($chunk));
-            return $chunk;
+
+            $remaining = $length - strlen($chunk);
+            if ($remaining <= 0) {
+                return $chunk;
+            }
+
+            if (feof($this->handle)) {
+                return $chunk === '' ? null : $chunk;
+            }
+
+            $tail = fread($this->handle, $remaining);
+            if ($tail === false) {
+                return $chunk === '' ? null : $chunk;
+            }
+
+            return $chunk . $tail;
         }
 
         if (feof($this->handle)) {
