@@ -57,7 +57,7 @@ final class ContentType
 
     public static function fromHeaderValue(string $value): self
     {
-        [$typePart, $paramStrings] = self::splitHeaderValue($value);
+        [$typePart, $paramStrings] = HeaderValueTokenizer::splitMainAndParameters($value);
         $typePart = strtolower(trim($typePart));
 
         $type = $typePart;
@@ -79,56 +79,5 @@ final class ContentType
         $parameters = Parameter::parseParameters($paramStrings);
 
         return new self($type, $subtype, $suffix, $parameters);
-    }
-
-    /**
-     * @return array{0:string,1:string[]}
-     */
-    private static function splitHeaderValue(string $value): array
-    {
-        $parts = [];
-        $buffer = '';
-        $inQuotes = false;
-        $escaped = false;
-        $length = strlen($value);
-
-        for ($i = 0; $i < $length; $i++) {
-            $char = $value[$i];
-
-            if ($escaped) {
-                $buffer .= $char;
-                $escaped = false;
-                continue;
-            }
-
-            if ($inQuotes && $char === '\\') {
-                $buffer .= $char;
-                $escaped = true;
-                continue;
-            }
-
-            if ($char === '"') {
-                $inQuotes = !$inQuotes;
-                $buffer .= $char;
-                continue;
-            }
-
-            if ($char === ';' && !$inQuotes) {
-                $parts[] = trim($buffer);
-                $buffer = '';
-                continue;
-            }
-
-            $buffer .= $char;
-        }
-
-        if ($buffer !== '') {
-            $parts[] = trim($buffer);
-        }
-
-        $typePart = $parts[0] ?? '';
-        $paramStrings = array_slice($parts, 1);
-
-        return [$typePart, $paramStrings];
     }
 }
