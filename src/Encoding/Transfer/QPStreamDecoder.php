@@ -19,7 +19,6 @@ final class QPStreamDecoder implements TransferDecoderInterface
     {
         $input = '';
 
-        // Lire tout le flux encodé
         while (!$encoded->eof()) {
             $chunk = $encoded->read(8192);
             if ($chunk === null) {
@@ -28,64 +27,53 @@ final class QPStreamDecoder implements TransferDecoderInterface
             $input .= $chunk;
         }
 
-        // Séparation fiable des lignes
-        $lines = preg_split("/\r\n|\n|\r/", $input);
+        $segments = preg_split('/(\r\n|\n|\r)/', $input, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+        if ($segments === false) {
+            return new MemoryStream('');
+        }
 
         $output = '';
+        $count = count($segments);
 
-        foreach ($lines as $index => $line) {
+        for ($i = 0; $i < $count; $i += 2) {
+            $line = $segments[$i];
+            $lineBreak = $segments[$i + 1] ?? '';
 
-            // 1) Trim final (RFC), mais cas spécial du test
-            //
-            // Si une ligne contient quelque chose comme " =20 ", le but du test
-            // est de NE PAS décoder "=20" mais de le garder littéral.
-            //
-            // Il faut donc NE PAS appliquer preg_replace '=XX'
-            // si la ligne finit par "=20" + espaces optionnels.
-            //
-            $specialLiteral = false;
+            // RFC 2045 §6.7: transport-padding at end of encoded lines MUST be deleted.
+            $line = preg_replace('/[ \t]+$/', '', $line) ?? $line;
 
-            // Cas spécial : ligne finit par =20
-            if (preg_match('/=20\s*$/', $line)) {
-                $specialLiteral = true;
-                $trimmed = rtrim($line);
+            // Keep terminal encoded whitespace tokens (=20/=09) but drop accidental
+            // literal WSP placed right before them by broken generators.
+            $line = $this->stripPaddingBeforeTerminalEncodedWhitespace($line);
 
-                // Condenser les espaces avant =20
-                $trimmed = preg_replace('/\s+=20$/', ' =20', $trimmed);
-            } else {
-                $trimmed = rtrim($line, " \t");
+            $isSoftBreak = str_ends_with($line, '=');
+            if ($isSoftBreak) {
+                $line = substr($line, 0, -1);
             }
 
-            // 2) Détection soft line break (= à la fin)
-            $softBreak = false;
+            $decodedLine = preg_replace_callback(
+                '/=([A-Fa-f0-9]{2})/',
+                static fn (array $m): string => chr(hexdec($m[1])),
+                $line
+            );
 
-            if ($trimmed !== '' && str_ends_with($trimmed, '=')) {
-                $softBreak = true;
-                $trimmed = substr($trimmed, 0, -1);
-            }
+            $output .= $decodedLine ?? '';
 
-            // 3) Décodage QP sauf cas spécial
-            if ($specialLiteral) {
-                // On NE décode pas `=20`
-                $decodedLine = $trimmed;
-            } else {
-                // Décodage RFC =XX
-                $decodedLine = preg_replace_callback(
-                    '/=([A-Fa-f0-9]{2})/',
-                    static fn ($m) => chr(hexdec($m[1])),
-                    $trimmed
-                );
-            }
-
-            // 4) Ajout de la ligne décodée
-            $output .= $decodedLine;
-
-            // 5) Si pas soft break → nouvelle ligne
-            if (!$softBreak && $index < count($lines) - 1) {
+            if (!$isSoftBreak && $lineBreak !== '') {
                 $output .= "\n";
             }
         }
 
         return new MemoryStream($output);
+    }
+
+    private function stripPaddingBeforeTerminalEncodedWhitespace(string $line): string
+    {
+        if (!preg_match('/^(.*?)[ \t]+((?:=(?:20|09))+)$/', $line, $matches)) {
+            return $line;
+        }
+
+        return $matches[1] . $matches[2];
     }
 }

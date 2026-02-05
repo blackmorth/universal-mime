@@ -44,6 +44,15 @@ final class QPStreamDecoderTest extends TestCase
         $decoder = new QPStreamDecoder();
 
         $decoded = $decoder->decode(new MemoryStream($input));
-        $this->assertSame("Hello =20\nWorld", $decoded->read(999));
+        $this->assertSame("Hello \nWorld", $decoded->read(999));
+    }
+
+    public function testDecodeInvalidSequenceAsLiteral(): void
+    {
+        $input = "Value=ZZ";
+        $decoder = new QPStreamDecoder();
+
+        $decoded = $decoder->decode(new MemoryStream($input));
+        $this->assertSame("Value=ZZ", $decoded->read(999));
     }
 }

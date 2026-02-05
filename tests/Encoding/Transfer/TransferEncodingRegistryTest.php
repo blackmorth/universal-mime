@@ -34,4 +34,16 @@ final class TransferEncodingRegistryTest extends TestCase
         $result = $decoder->decode(new MemoryStream("xxx"));
         $this->assertSame("decoded", $result->read(999));
     }
+
+    public function testGetWithParametersAndSpaces(): void
+    {
+        $registry = new TransferEncodingRegistry([
+            DummyDecoder::class,
+        ]);
+
+        $decoder = $registry->get(' dummy ; level=1 ');
+        $result = $decoder->decode(new MemoryStream('xxx'));
+
+        $this->assertSame('decoded', $result->read(999));
+    }
 }
