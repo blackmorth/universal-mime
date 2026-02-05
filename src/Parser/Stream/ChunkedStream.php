@@ -20,11 +20,6 @@ final class ChunkedStream implements StreamInterface
         return $this->stream->readLine();
     }
 
-    public function readLine(): ?string
-    {
-        return null;
-    }
-
     public function eof(): bool
     {
         return $this->stream->eof();
