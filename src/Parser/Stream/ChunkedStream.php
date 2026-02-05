@@ -44,9 +44,4 @@ final class ChunkedStream implements StreamInterface
     {
         $this->stream->unshift($data);
     }
-
-    public function unshift(string $data): void
-    {
-        // TODO: Implement unshift() method.
-    }
 }
