@@ -36,4 +36,12 @@ final class ContentDisposition
         }
         return null;
     }
+
+    public static function fromHeaderValue(string $value): self
+    {
+        [$disposition, $paramStrings] = HeaderValueTokenizer::splitMainAndParameters($value);
+        $parameters = Parameter::parseParameters($paramStrings);
+
+        return new self(trim($disposition), $parameters);
+    }
 }

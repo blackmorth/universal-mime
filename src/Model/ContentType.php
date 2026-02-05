@@ -54,4 +54,30 @@ final class ContentType
         }
         return null;
     }
+
+    public static function fromHeaderValue(string $value): self
+    {
+        [$typePart, $paramStrings] = HeaderValueTokenizer::splitMainAndParameters($value);
+        $typePart = strtolower(trim($typePart));
+
+        $type = $typePart;
+        $subtype = '';
+        $suffix = null;
+
+        if (str_contains($typePart, '/')) {
+            [$type, $subtypePart] = explode('/', $typePart, 2);
+            $type = trim($type);
+            $subtypePart = trim($subtypePart);
+
+            if (str_contains($subtypePart, '+')) {
+                [$subtype, $suffix] = explode('+', $subtypePart, 2);
+            } else {
+                $subtype = $subtypePart;
+            }
+        }
+
+        $parameters = Parameter::parseParameters($paramStrings);
+
+        return new self($type, $subtype, $suffix, $parameters);
+    }
 }

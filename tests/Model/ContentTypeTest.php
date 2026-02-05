@@ -38,4 +38,15 @@ final class ContentTypeTest extends TestCase
 
         $this->assertTrue($ct->hasParam("boundary"));
     }
+
+    public function testContentTypeFromHeaderValue(): void
+    {
+        $ct = ContentType::fromHeaderValue('application/soap+xml; charset="utf-8"; boundary=abc');
+
+        $this->assertSame('application', $ct->type);
+        $this->assertSame('soap', $ct->subtype);
+        $this->assertSame('xml', $ct->suffix);
+        $this->assertSame('utf-8', $ct->getParam('charset')->value);
+        $this->assertSame('abc', $ct->getParam('boundary')->value);
+    }
 }
