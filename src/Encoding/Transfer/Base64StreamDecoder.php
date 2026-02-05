@@ -33,14 +33,23 @@ final class Base64StreamDecoder implements TransferDecoderInterface
             $buffer .= $chunk;
         }
 
-        // RFC 2045 : ignorer les caractères hors Base64 (CRLF, espaces)
-        $clean = preg_replace('/[^A-Za-z0-9\/+=]/', '', $buffer);
+        // RFC 2045 §6.8: characters outside Base64 alphabet are ignored.
+        $clean = preg_replace('/[^A-Za-z0-9+\/=]/', '', $buffer);
+
+        if ($clean === null) {
+            return new MemoryStream('');
+        }
+
+        // Lenient recovery for inputs with missing "=" padding.
+        $remainder = strlen($clean) % 4;
+        if ($remainder !== 0) {
+            $clean .= str_repeat('=', 4 - $remainder);
+        }
 
         // Décodage RFC 4648 (compatible RFC 2045)
         $decoded = base64_decode($clean, true);
 
         if ($decoded === false || $decoded === '') {
-            // Décodage invalide → on retourne un stream vide
             $decoded = '';
         }
 

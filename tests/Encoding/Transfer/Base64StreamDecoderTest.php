@@ -42,4 +42,13 @@ final class Base64StreamDecoderTest extends TestCase
         $decoded = $decoder->decode($stream);
         $this->assertSame("", $decoded->read(999));
     }
+
+    public function testDecodeWithoutPadding(): void
+    {
+        $decoder = new Base64StreamDecoder();
+        $stream = new MemoryStream('SGVsbG8'); // "Hello" without '='
+
+        $decoded = $decoder->decode($stream);
+        $this->assertSame('Hello', $decoded->read(999));
+    }
 }

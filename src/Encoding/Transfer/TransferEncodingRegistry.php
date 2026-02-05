@@ -46,7 +46,11 @@ final class TransferEncodingRegistry implements \UniversalMime\Encoding\Transfer
 
     public function get(string $encoding): TransferDecoderInterface
     {
-        $encoding = strtolower($encoding);
+        $encoding = strtolower(trim($encoding));
+
+        // RFC 2045 token forms can appear with comments/parameters in the wild.
+        // Keep only the first token before ';' to stay robust.
+        $encoding = trim(strtok($encoding, ';') ?: $encoding);
 
         if (isset($this->decoders[$encoding])) {
             return $this->decoders[$encoding];
