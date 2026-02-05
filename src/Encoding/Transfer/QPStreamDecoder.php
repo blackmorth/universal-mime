@@ -27,19 +27,53 @@ final class QPStreamDecoder implements TransferDecoderInterface
             $input .= $chunk;
         }
 
-        // RFC 2045 §6.7: transport-padding at end of encoded lines MUST be deleted.
-        $withoutTransportPadding = preg_replace('/[ \t]+(?=\r\n|\n|\r|$)/', '', $input);
+        $segments = preg_split('/(\r\n|\n|\r)/', $input, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-        // RFC 2045 §6.7: soft line breaks use "=" immediately before line break.
-        $joined = preg_replace('/=\r\n|=\n|=\r/', '', $withoutTransportPadding);
+        if ($segments === false) {
+            return new MemoryStream('');
+        }
 
-        // Decode only valid =XX escapes, preserve invalid sequences as-is.
-        $decoded = preg_replace_callback(
-            '/=([A-Fa-f0-9]{2})/',
-            static fn (array $m): string => chr(hexdec($m[1])),
-            $joined
-        );
+        $output = '';
+        $count = count($segments);
 
-        return new MemoryStream($decoded ?? '');
+        for ($i = 0; $i < $count; $i += 2) {
+            $line = $segments[$i];
+            $lineBreak = $segments[$i + 1] ?? '';
+
+            // RFC 2045 §6.7: transport-padding at end of encoded lines MUST be deleted.
+            $line = preg_replace('/[ \t]+$/', '', $line) ?? $line;
+
+            // Keep terminal encoded whitespace tokens (=20/=09) but drop accidental
+            // literal WSP placed right before them by broken generators.
+            $line = $this->stripPaddingBeforeTerminalEncodedWhitespace($line);
+
+            $isSoftBreak = str_ends_with($line, '=');
+            if ($isSoftBreak) {
+                $line = substr($line, 0, -1);
+            }
+
+            $decodedLine = preg_replace_callback(
+                '/=([A-Fa-f0-9]{2})/',
+                static fn (array $m): string => chr(hexdec($m[1])),
+                $line
+            );
+
+            $output .= $decodedLine ?? '';
+
+            if (!$isSoftBreak && $lineBreak !== '') {
+                $output .= "\n";
+            }
+        }
+
+        return new MemoryStream($output);
+    }
+
+    private function stripPaddingBeforeTerminalEncodedWhitespace(string $line): string
+    {
+        if (!preg_match('/^(.*?)[ \t]+((?:=(?:20|09))+)$/', $line, $matches)) {
+            return $line;
+        }
+
+        return $matches[1] . $matches[2];
     }
 }
