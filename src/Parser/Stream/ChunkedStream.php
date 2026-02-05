@@ -20,6 +20,11 @@ final class ChunkedStream implements StreamInterface
         return $this->stream->readLine();
     }
 
+    public function readLine(): ?string
+    {
+        return null;
+    }
+
     public function eof(): bool
     {
         return $this->stream->eof();
@@ -43,5 +48,10 @@ final class ChunkedStream implements StreamInterface
     public function unshift(string $data): void
     {
         $this->stream->unshift($data);
+    }
+
+    public function unshift(string $data): void
+    {
+        // TODO: Implement unshift() method.
     }
 }

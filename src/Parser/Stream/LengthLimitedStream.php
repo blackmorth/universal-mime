@@ -55,6 +55,11 @@ final class LengthLimitedStream implements StreamInterface
         return $line;
     }
 
+    public function readLine(): ?string
+    {
+        return null;
+    }
+
     public function eof(): bool
     {
         return $this->consumed >= $this->limit || $this->stream->eof();
@@ -83,5 +88,10 @@ final class LengthLimitedStream implements StreamInterface
         if ($this->consumed < 0) {
             $this->consumed = 0;
         }
+    }
+
+    public function unshift(string $data): void
+    {
+        // TODO: Implement unshift() method.
     }
 }
