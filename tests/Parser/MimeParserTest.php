@@ -95,4 +95,27 @@ final class MimeParserTest extends TestCase
         $this->assertSame("BODY1" . Line::CRLF, $parts[0]->body->stream->read(999));
         $stream->close();
     }
+
+    public function testParseMultipartWithTrailingWhitespaceAfterBoundary(): void
+    {
+        $raw =
+            "--abc  " . Line::CRLF .
+            "X-A: 1" . Line::CRLF .
+            Line::CRLF .
+            "BODY1" . Line::CRLF .
+            "--abc--\t " . Line::CRLF;
+
+        $ctype = new ContentType('multipart', 'mixed', null, [
+            new Parameter('boundary', 'abc')
+        ]);
+
+        $parser = UniversalMime::defaultParser();
+        $stream = new MemoryStream($raw);
+
+        $parts = $parser->parse($ctype, $stream);
+
+        $this->assertCount(1, $parts);
+        $this->assertSame("1", $parts[0]->headers->get("X-A")->value);
+        $this->assertSame("BODY1" . Line::CRLF, $parts[0]->body->stream->read(999));
+    }
 }

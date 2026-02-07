@@ -78,7 +78,7 @@ final class MimeParser
                 break;
             }
 
-            $trim = rtrim($line, Line::CRLF);
+            $trim = $this->normalizeBoundaryLine($line);
 
             if ($trim === $delimiter) {
                 $parts[] = $this->readPart($stream, $boundary);
@@ -157,7 +157,7 @@ final class MimeParser
                 break;
             }
 
-            $trim = rtrim($line, Line::CRLF);
+            $trim = $this->normalizeBoundaryLine($line);
 
             if ($trim === $delimiter || $trim === $closeDelim) {
                 // IMPORTANT : ne pas consommer le boundary
@@ -169,5 +169,10 @@ final class MimeParser
         }
 
         return $buffer;
+    }
+
+    private function normalizeBoundaryLine(string $line): string
+    {
+        return rtrim($line, " \t\r\n");
     }
 }
