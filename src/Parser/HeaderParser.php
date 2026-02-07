@@ -9,6 +9,7 @@ use UniversalMime\Model\Header;
 use UniversalMime\Model\HeaderBag;
 use UniversalMime\Wire\Header\RawHeaderBlock;
 use UniversalMime\Wire\Header\HeaderCodec;
+use UniversalMime\Wire\Header\EncodedWordDecoder;
 
 /**
  * Transforme un RawHeaderBlock unfoldé en HeaderBag immuable.
@@ -37,7 +38,7 @@ final class HeaderParser implements HeaderParserInterface
             $res = $this->codec->splitField($line);
 
             $name  = trim($res['name']);
-            $value = $res['value'];
+            $value = EncodedWordDecoder::decode($res['value']);
 
             if ($name === '') {
                 continue;

@@ -43,6 +43,19 @@ final class HeaderParserTest extends TestCase
         $this->assertSame("Hello World", $bag->get("Subject")->value);
     }
 
+    public function testDecodesEncodedWordsInHeaderValues(): void
+    {
+        $block = new RawHeaderBlock();
+
+        $block->addLine(new RawHeaderLine("Subject: =?UTF-8?Q?Bonjour?= =?UTF-8?Q?_Monde?=" . Line::CRLF));
+        $block->addLine(new RawHeaderLine(Line::CRLF));
+
+        $parser = new HeaderParser();
+        $bag = $parser->parse($block);
+
+        $this->assertSame("Bonjour Monde", $bag->get("Subject")->value);
+    }
+
     public function testInvalidHeaderNamesAreIgnored(): void
     {
         $block = new RawHeaderBlock();
