@@ -63,6 +63,13 @@ final class MessageStreamParser implements MessageParserInterface
 
             // On retire la start-line pour ne garder que les headers
             array_shift($unfolded);
+
+            $rawLines = $rawHeaders->rawLines();
+            array_shift($rawLines);
+            $rawHeaders = new RawHeaderBlock();
+            foreach ($rawLines as $rawLine) {
+                $rawHeaders->addLine($rawLine);
+            }
         }
 
         // 3. Parser les headers restants
